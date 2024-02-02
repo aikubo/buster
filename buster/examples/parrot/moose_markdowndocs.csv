@@ -1,0 +1,371 @@
+title,content
+HeatConductionTimeDerivative.md,"HeatConductionTimeDerivative
+
+!syntax description /Kernels/HeatConductionTimeDerivative
+
+!alert warning
+This Kernel will not generate the correct on-diagonal Jacobians for temperature dependent specific
+heat $c_p$ or density $\rho$, and this kernel does not contribute an off-diagonal Jacobian at all.
+
+See also [/HeatCapacityConductionTimeDerivative.md] and [/SpecificHeatConductionTimeDerivative.md].
+
+!syntax parameters /Kernels/HeatConductionTimeDerivative
+
+!syntax inputs /Kernels/HeatConductionTimeDerivative
+
+!syntax children /Kernels/HeatConductionTimeDerivative
+"
+AffineInvariantStretchDecision.md,"AffineInvariantStretchDecision
+
+!syntax description /Reporters/AffineInvariantStretchDecision
+
+#"
+AffineInvariantStretchDecision.md,"Overview
+
+The `AffineInvariantStretchDecision` class derives from [PMCMCDecision](PMCMCDecision.md) and only overrides the `computeTransitionVector` function. This is to implement the acceptance probability computation step defined by the equation [!cite](Goodman2010a):
+
+\begin{equation}
+    \label{eqn:ens_3}
+    t_{\mathcal{S}_{y^{p}_{-1}} \mathcal{S}_{y^p}} = \min{\bigg\{1,~(z^p)^{(M+1)-1}~\frac{\mathcal{L}(\mathcal{S}_{y^p}) \mathcal{P}(\mathcal{S}_{y^p})}{\mathcal{L}(\mathcal{S}_{y^{p}_{-1}}) \mathcal{P}(\mathcal{S}_{y^{p}_{-1}})}\bigg\}}
+\end{equation}
+
+where $\mathcal{S}_{y^{p}_{-1}}$ the accepted state at index $p$ from the previous step, $\mathcal{S}_{y^{p}}$ the proposed state at index $p$ from the current step, $\mathcal{L}$ is the likelihood function, $\mathcal{P}$ is the prior distribution, and $(M+1)$ is the number of model parameters plus the $\sigma$ term to be inferred.
+
+!syntax parameters /Reporters/AffineInvariantStretchDecision
+
+!syntax inputs /Reporters/AffineInvariantStretchDecision
+
+!syntax children /Reporters/AffineInvariantStretchDecision
+"
+IntersectionPointsAlongLine.md,"IntersectionPointsAlongLine
+
+!syntax description /VectorPostprocessors/IntersectionPointsAlongLine
+
+The CSV output consists of the X, Y and Z coordinates of the intersection points between the faces/sides of the elements and the line.
+The `IntersectionPointsAlongLine` vector postprocessor declares a vector for each coordinate of the intersection points, named `x`, `y` and `z`.
+
+!alert note
+This object only supports replicated meshes. A distributed version of this object may be created using the [ray tracing module](modules/ray_tracing/index.md optional=True).
+
+!syntax parameters /VectorPostprocessors/IntersectionPointsAlongLine
+
+!syntax inputs /VectorPostprocessors/IntersectionPointsAlongLine
+
+!syntax children /VectorPostprocessors/IntersectionPointsAlongLine
+"
+MappingReporter.md,"MappingReporter
+
+!syntax description /Reporters/MappingReporter
+
+#"
+MappingReporter.md,"Overview
+
+This object is responsible for mapping high-dimensional solution fields to low-dimensional
+vectors. The mapped vectors are then stored within the reporter data storage. The
+[!param](/Reporters/MappingReporter/mapping) parameter can be used to specify the
+mapping object from the `VariableMappings` block. The variables which need to be mapped can be defined using
+[!param](/Reporters/MappingReporter/variables). There are two distinct ways to use this object:
+
+1. +In conjunction with a [ParallelSolutionStorage.md] object:+ In this case, the first time
+   this object is executed, it will build the mapping using the available data in the parallel storage.
+   Then, using the generated mapping, it maps the solution fields in the parallel storage into the latent space and
+   saves the coordinates into the reporter storage. This gives a straightforward pipeline for the training
+   of surrogate models for the coordinates of the solutions fields in the latent space. In this case,
+   the user is expected to define the [!param](/Reporters/MappingReporter/parallel_storage) and
+   [!param](/Reporters/MappingReporter/sampler) parameters.
+
+2. +Without a [ParallelSolutionStorage.md] object:+ This functionality is designed to load an already
+   trained mapping object and map a solution variable in a nonlinear system into the latent space and
+   store the coordinates in this reporter.
+
+
+#"
+MappingReporter.md,"Example Input File Syntax
+
+Example for mapping solutions in a [ParallelSolutionStorage.md] object:
+
+!listing test/tests/reporters/mapping/map_main.i block=Reporters
+
+Example for mapping solutions:
+
+!listing test/tests/reporters/mapping/load_main.i block=Reporters
+
+#"
+MappingReporter.md,"Syntax
+
+!syntax parameters /Reporters/MappingReporter
+
+!syntax inputs /Reporters/MappingReporter
+
+!syntax children /Reporters/MappingReporter
+"
+RotationAngle.md,"RotationAngle
+
+!syntax description /AuxKernels/RotationAngle
+
+#"
+RotationAngle.md,"Overview
+
+This AuxKernel computes the rotation angle $\alpha$ in radians around an axis
+given by a reference point (the `origin`) and a `direction` vector $\vec d$ for
+every node. The vectors $\vec r_1$ from the origin to the undisplaced node and
+$\vec r_2$ from the to the displaced node are computed. The displaced point is
+determined by adding the `displacements` components to the undisplaced node
+location. Projection of $\vec r_{1,2}$ onto the normalized direction
+$\frac1{|d|}\vec d$ are then subtracted from $\vec r_{1,2}$.
+
+The angle $\alpha$ is computed as
+
+!equation
+\alpha = \arccos\frac{\vec r_1 \cdot \vec r_1}{|r_1|\cdot|r_2|} \cdot \text{sign}\left((\vec r_1 \times \vec r_2)\cdot \vec d\right)
+
+If the denominator of this fraction is too small, zero is returned as the angle.
+The sign of the angle is determined by comparing the cross product of the
+projected $\vec r_{1,2}$ vectors to the direction vector $\vec d$. Right hand
+rule applies.
+
+#"
+RotationAngle.md,"Example Input File Syntax
+
+!syntax parameters /AuxKernels/RotationAngle
+
+!syntax inputs /AuxKernels/RotationAngle
+
+!syntax children /AuxKernels/RotationAngle
+"
+CaloricallyImperfectGas.md,"CaloricallyImperfectGas
+
+!syntax description /FluidProperties/CaloricallyImperfectGas
+
+This class implements fluid properties for a gas that behaves like an
+ideal gas except that the specific heat capacities are a function of temperature
+(as opposed to constants as for the ideal gas).
+
+The relationship between pressure, density, and temperature is identical to an ideal
+gas:
+
+\begin{equation}
+  pv = R_s T,
+\end{equation}  
+
+where $p$ is pressure, $v$ is specific volume, $R_s$ is the specific
+gas constant, and $T$ is temperature.
+
+The internal energy $e$ is a user-provided function of temperature:
+
+\begin{equation}
+  e = e(T).
+\end{equation}  
+
+The function $e(T)$ is provided via parameter [!param](/FluidProperties/CaloricallyImperfectGas/e). The time argument is interpreted
+as temperature.
+
+The enthalpy is computed by:
+
+\begin{equation}
+  h = e(T) + R_s T.
+\end{equation}  
+
+The specific heat capacities at constant volume and pressure $c_v$ and $c_p$
+are computed by:
+
+!equation
+\begin{aligned}
+c_v &= \frac{de}{dT} \\
+c_p &= \frac{de}{dT} + R_s.
+\end{aligned}
+
+!alert warning
+The specific heat capacities are computed from $e(T)$ using the `timeDerivative` method
+of the `Function` class. The type of function that is used for $e(T)$ *must* implement
+the `timeDerivative` method.
+
+The inverse functions $T(e)$ and $T(h)$ are obtained as follows:
+
+1. Ensure that within the acceptable temperature range (parameters `min_temperature` and `max_temperature`) $c_v > 0$.
+
+2. Compute the minimum and maximum values of $e$ and $h$.
+
+!equation
+\begin{aligned}
+e_{min} &= e(T_{min}) \\
+e_{max} &= e(T_{max}) \\
+h_{min} &= h(T_{min}) \\
+h_{max} &= h(T_{max}) \\
+\end{aligned}
+
+3. Sample
+
+   \begin{equation}
+   e_j = e_{min} + j \frac{e_{max}-e_{min}}{N},\qquad j=0,..,N.
+   \end{equation}
+
+   and for each $e_j$ solve
+
+   \begin{equation}
+   e_j - e(T_j)= 0,
+   \end{equation}
+
+   for $T_j$. Create tabulation $\{e_j, T_j\}$. Create a similar tabulation for enthalpy.
+
+4. Evaluating $T(e)$ uses linear interpolation in $\{e_j, T_j\}$.
+
+#"
+CaloricallyImperfectGas.md,"Evaluating Entropy
+
+From the first and second law of thermodynamics is follows that:
+
+!equation
+\begin{aligned}
+dq &= de + pdv \\
+ds &= dq/T,
+\end{aligned}
+
+where $dq$ is an infinitesimal amount of heat. Solving for $ds$ and using the ideal gas law leads to:
+
+\begin{equation}
+ ds = \frac{de}{T} + R_s \frac{dv}{v}.
+\end{equation}
+
+Integrating this equation leads to an expression for the entropy:
+
+\begin{equation}
+ s(e, v) - s(e_0, v_0) = \int\limits_{e_0}^e \frac{de'}{T'} + R_s \log \frac{v}{v_0},
+\end{equation}
+
+where the prime indicates that these variables are dummy variables of integration.
+We are free to select a zero-point for entropy and we select $s(e_0, v_0) = 0$.
+We also select $v_0 = 1$ and $e_0 = e(T_{min})$. Then we define:
+
+\begin{equation}
+ Z(T) = \int\limits_{e_0}^{e(T)} \frac{de'}{T'} = \int\limits_{T_{min}}^{T} \frac{c_v(T')}{T'} dT'.
+\end{equation}
+
+Entropy is computed from the expression:
+
+\begin{equation}
+ s(e, v) = Z(T(e)) + R_s \log v,
+\end{equation}
+
+where $Z(T)$ is computed using a trapezoidal rule and tabulated between $T_{min}$ and $T_{max}$.
+It is linearly interpolated.
+
+The derivatives of entropy with respect to $T$, $e$, $h$, $v$ are given by:
+
+!equation
+\begin{aligned}
+\left(\frac{\partial s}{\partial e}\right)_v &= \frac{1}{T(e)} \\
+\left(\frac{\partial s}{\partial v}\right)_e &= \frac{R_s}{v} \\
+\left(\frac{\partial s}{\partial p}\right)_T &= -\frac{R_s}{p} \\
+\left(\frac{\partial s}{\partial T}\right)_p &= \frac{c_p(T)}{T} \\
+\left(\frac{\partial s}{\partial p}\right)_h &= -\frac{R_s}{p} \\
+\left(\frac{\partial s}{\partial h}\right)_p &= \frac{1}{T}.
+\end{aligned}
+
+These derivatives are implemented in the 5 argument versions of the `s_from_x_y`
+functions.
+
+!syntax parameters /FluidProperties/CaloricallyImperfectGas
+
+!syntax inputs /FluidProperties/CaloricallyImperfectGas
+
+!syntax children /FluidProperties/CaloricallyImperfectGas
+
+!bibtex bibliography
+"
+FluidFreeSurfaceBC.md,"Free surface fluid boundary condition
+
+!syntax description /BCs/FluidFreeSurfaceBC
+
+#"
+FluidFreeSurfaceBC.md,"Description
+
+The free surface fluid BC applies a mixed Dirichlet-Neumann condition to simulate
+gravity waves. This condition is as follows:
+
+\begin{equation}
+    \label{eqn:Free1}
+    \frac{\partial p}{\partial z} = -\alpha~\frac{\partial^2p}{\partial t^2}
+\end{equation}
+
+where, $p$ is the fluid pressure and $g$ is the acceleration due to gravity. This BC is part of the fluid-structure interaction codes. Please refer to [fluid-structure interaction using acoustics](/fsi_acoustics.md) for the theoretical details.
+
+!syntax parameters /BCs/FluidFreeSurfaceBC
+
+!syntax inputs /BCs/FluidFreeSurfaceBC
+
+!syntax children /BCs/FluidFreeSurfaceBC
+"
+MooseVariableConstMonomial.md,"MooseVariableConstMonomial
+
+!syntax description /Variables/MooseVariableConstMonomial
+
+Specialization for constant monomial variables.  It skips the interpolation into quadrature points
+and just copies the solution values there.
+
+A detailed description of the MOOSE variable system is given in the [base class documentation](MooseVariableBase.md).
+
+!syntax parameters /Variables/MooseVariableConstMonomial
+
+!syntax inputs /Variables/MooseVariableConstMonomial
+
+!syntax children /Variables/MooseVariableConstMonomial
+"
+PWCNSFVMomentumFluxBC.md,"PWCNSFVMomentumFluxBC
+
+!syntax description /FVBCs/PWCNSFVMomentumFluxBC
+
+This object is the porous medium version of [WCNSFVMomentumFluxBC.md].
+
+The momentum flux is:
+
+!equation
+\phi = \dfrac{\rho v_d^2}{\epsilon} = \dfrac{\dot{m}^2}{\rho \epsilon A^2}
+
+with $\phi$ the momentum flux, $\rho$ the density, $v_d$ the fluid superficial
+velocity (assumed normal to the surface here), $\epsilon$ the porosity of the medium,
+$\dot{m}$ the mass flow rate, and $A$ the inlet area.
+
+There are two options for specifying the momentum flux:
+
+- specifying a mass flow rate postprocessor, which is then divided by the area of the inlet,
+  which may also be a postprocessor.
+
+- specifying an inlet superficial velocity postprocessor and a density functor. The functor is
+  usually a functor material property, defined by a [GeneralFunctorFluidProps.md].
+
+The scaling factor may be used if the inlet is not aligned with the X or Y direction,
+in which case a projection is necessary and this boundary condition should be used for
+both components of the momentum equation.
+
+This boundary condition works with postprocessors, which may be replaced by constant
+values in the input. The intended use case for this boundary condition is to be receiving its value from
+a coupled application, using a [Receiver.md] postprocessor.
+
+!syntax parameters /FVBCs/PWCNSFVMomentumFluxBC
+
+!syntax inputs /FVBCs/PWCNSFVMomentumFluxBC
+
+!syntax children /FVBCs/PWCNSFVMomentumFluxBC
+"
+KernelGrad.md,"KernelGrad
+
+Derive from this base class if your residual is of the form
+
+$$
+(\dots,\nabla\psi_i)
+$$
+
+i.e. if the test function $\nabla\psi_i$ (`_grad_test[_i][_qp]`) can be factored out.
+
+#"
+KernelGrad.md,"Derived classes
+
+Override
+
+- `precomputeQpResidual()` instead of `computeQpResidual()` (do not multiply by `_grad_test[_i][_qp]`).
+- `precomputeQpJacobian()` instead of `computeQpJacobian()` (do not multiply by `_grad_test[_i][_qp]`)
+- `computeOffDiagJacobian` still has to be implemented as if deriving from `Kernel`.
+
+Note that `precomputeQpResidual()` and `precomputeQpJacobian()` return a `RealGradient` type.
+"
